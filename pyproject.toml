@@ -7,7 +7,9 @@ authors = [
     { name = "Zaid Al Habbal", email = "alhabbalzaid10@gmail.com" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pygame>=2.6.1",
+]
 
 [project.scripts]
 snake-game = "snake_game:main"
@@ -15,3 +17,10 @@ snake-game = "snake_game:main"
 [build-system]
 requires = ["uv_build>=0.8.17,<0.9.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.1",
+    "pytest>=8.4.2",
+    "ruff>=0.13.0",
+]
