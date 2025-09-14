@@ -25,7 +25,7 @@ A simple classic **Snake Game** built with Python and Pygame. The snake grows as
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/snake-game.git
+git clone https://github.com/Zaid-Al-Habbal/snake-game
 cd snake-game
 ```
 
