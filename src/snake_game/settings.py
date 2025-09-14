@@ -1,5 +1,5 @@
 GRID_WIDTH: int = 20
-GRID_HIGHT: int = 20
+GRID_HEIGHT: int = 20
 
 
 CELL_SIZE: int = 20
