@@ -89,6 +89,29 @@ class Game:
 
         pygame.display.flip()
 
+    def game_over(self) -> None:
+        self.screen.fill(settings.COLOR_BG)
+        game_over_surface = self.font.render("GAME OVER", True, (255, 0, 0))
+        score_surface = self.font.render(f"Final Score: {self.score}", True, (255, 255, 255))
+
+        self.screen.blit(game_over_surface, (settings.GRID_WIDTH * settings.CELL_SIZE // 2 - 60,
+                                            settings.GRID_HEIGHT * settings.CELL_SIZE // 2 - 20))
+        self.screen.blit(score_surface, (settings.GRID_WIDTH * settings.CELL_SIZE // 2 - 70,
+                                        settings.GRID_HEIGHT * settings.CELL_SIZE // 2 + 20))
+
+        pygame.display.flip()
+
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    waiting = False
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    waiting = False
+                    self.running = False
+
+
     def run(self) -> None:
         while self.running:
             self.handle_input()
@@ -96,5 +119,6 @@ class Game:
             self.draw()
             self.clock.tick(settings.FPS)
 
+        self.game_over()
         pygame.quit()
         sys.exit()
