@@ -11,21 +11,22 @@ class Game:
     def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode(
-            (settings.GRID_WIDTH * settings.CELL_SIZE,
-             settings.GRID_HEIGHT * settings.CELL_SIZE)
+            (
+                settings.GRID_WIDTH * settings.CELL_SIZE,
+                settings.GRID_HEIGHT * settings.CELL_SIZE,
+            )
         )
         pygame.display.set_caption("Snake Game")
 
         self.clock = pygame.time.Clock()
-        self.snake = Snake(start=Point(settings.GRID_WIDTH // 2,
-                                       settings.GRID_HEIGHT // 2))
+        self.snake = Snake(
+            start=Point(settings.GRID_WIDTH // 2, settings.GRID_HEIGHT // 2)
+        )
         self.food = Food.random_food(self.snake)
         self.running = True
 
         self.score = 0
         self.font = pygame.font.SysFont("Arial", 24)
-
-
 
     def handle_input(self) -> None:
         for event in pygame.event.get():
@@ -48,7 +49,7 @@ class Game:
 
         if grow:
             self.food = Food.random_food(self.snake)
-            self.score += 1 
+            self.score += 1
 
         # check collisions
         if self.snake.check_self_collision() or self.snake.check_wall_collision(
@@ -89,36 +90,100 @@ class Game:
 
         pygame.display.flip()
 
-    def game_over(self) -> None:
-        self.screen.fill(settings.COLOR_BG)
-        game_over_surface = self.font.render("GAME OVER", True, (255, 0, 0))
-        score_surface = self.font.render(f"Final Score: {self.score}", True, (255, 255, 255))
+    def game_over(self) -> bool:
+        """
+        Show game over screen with a Restart button.
+        Returns True if the player chose to restart, False to quit.
+        """
+        button_w, button_h = 160, 50
+        button_rect = pygame.Rect(
+            settings.GRID_WIDTH * settings.CELL_SIZE // 2 - button_w // 2,
+            settings.GRID_HEIGHT * settings.CELL_SIZE // 2 + 40,
+            button_w,
+            button_h,
+        )
 
-        self.screen.blit(game_over_surface, (settings.GRID_WIDTH * settings.CELL_SIZE // 2 - 60,
-                                            settings.GRID_HEIGHT * settings.CELL_SIZE // 2 - 20))
-        self.screen.blit(score_surface, (settings.GRID_WIDTH * settings.CELL_SIZE // 2 - 70,
-                                        settings.GRID_HEIGHT * settings.CELL_SIZE // 2 + 20))
-
-        pygame.display.flip()
-
-        waiting = True
-        while waiting:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    waiting = False
-                    self.running = False
+                    return False
                 elif event.type == pygame.KEYDOWN:
-                    waiting = False
-                    self.running = False
+                    # any key restarts
+                    return True
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if button_rect.collidepoint(event.pos):
+                        return True
 
+            self.screen.fill(settings.COLOR_BG)
+            game_over_surface = self.font.render("GAME OVER", True, (255, 0, 0))
+            score_surface = self.font.render(
+                f"Final Score: {self.score}", True, (255, 255, 255)
+            )
+            restart_surface = self.font.render("Restart", True, (0, 0, 0))
+
+            self.screen.blit(
+                game_over_surface,
+                (
+                    settings.GRID_WIDTH * settings.CELL_SIZE // 2
+                    - game_over_surface.get_width() // 2,
+                    settings.GRID_HEIGHT * settings.CELL_SIZE // 2 - 60,
+                ),
+            )
+            self.screen.blit(
+                score_surface,
+                (
+                    settings.GRID_WIDTH * settings.CELL_SIZE // 2
+                    - score_surface.get_width() // 2,
+                    settings.GRID_HEIGHT * settings.CELL_SIZE // 2 - 20,
+                ),
+            )
+
+            # draw button (hover effect)
+            mouse_pos = pygame.mouse.get_pos()
+            if button_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(self.screen, (200, 200, 200), button_rect)
+            else:
+                pygame.draw.rect(self.screen, (240, 240, 240), button_rect)
+
+            self.screen.blit(
+                restart_surface,
+                (
+                    button_rect.x
+                    + button_rect.w // 2
+                    - restart_surface.get_width() // 2,
+                    button_rect.y
+                    + button_rect.h // 2
+                    - restart_surface.get_height() // 2,
+                ),
+            )
+
+            pygame.display.flip()
+            self.clock.tick(30)
+
+    def reset(self) -> None:
+        """Reset game state for a restart."""
+        self.snake = Snake(
+            start=Point(settings.GRID_WIDTH // 2, settings.GRID_HEIGHT // 2)
+        )
+        self.food = Food.random_food(self.snake)
+        self.score = 0
+        self.running = True
 
     def run(self) -> None:
-        while self.running:
-            self.handle_input()
-            self.update()
-            self.draw()
-            self.clock.tick(settings.FPS)
+        while True:
+            while self.running:
+                self.handle_input()
+                self.update()
+                self.draw()
+                self.clock.tick(settings.FPS)
 
-        self.game_over()
+            # Show game over and get choice
+            restart = self.game_over()
+            if restart:
+                self.reset()
+                continue
+            else:
+                break
+
         pygame.quit()
         sys.exit()
