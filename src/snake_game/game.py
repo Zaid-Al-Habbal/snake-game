@@ -22,6 +22,11 @@ class Game:
         self.food = Food.random_food(self.snake)
         self.running = True
 
+        self.score = 0
+        self.font = pygame.font.SysFont("Arial", 24)
+
+
+
     def handle_input(self) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -43,6 +48,7 @@ class Game:
 
         if grow:
             self.food = Food.random_food(self.snake)
+            self.score += 1 
 
         # check collisions
         if self.snake.check_self_collision() or self.snake.check_wall_collision(
@@ -52,6 +58,9 @@ class Game:
 
     def draw(self) -> None:
         self.screen.fill(settings.COLOR_BG)
+
+        score_surface = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        self.screen.blit(score_surface, (10, 10))
 
         # draw snake
         for segment in self.snake.body:
